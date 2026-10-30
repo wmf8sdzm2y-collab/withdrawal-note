@@ -876,98 +876,129 @@
     // ---------- 追加・編集 ----------
 
     function openEditor(id) {
-      editing = id || null;
+  editing = id || null;
 
-      $("form").reset();
-      $("error").textContent = "";
-      $("repeat").hidden = !!id;
-      $("editNote").hidden = !id;
-      $("formTitle").textContent =
-        id ? "この月の予定を編集" : "予定を追加";
+  $("form").reset();
+  $("error").textContent = "";
+  $("repeat").hidden = !!id;
+  $("editNote").hidden = !id;
 
-      const row = id
-        ? M.entries(data, month).find(r => r.id === id)
-        : null;
+  $("formTitle").textContent =
+    id ? "この月の予定を編集" : "予定を追加";
 
-      $("name").value = row ? row.name : "";
-      $("name").disabled = !!id;
-      $("amount").value =
-        row && row.amount !== null ? row.amount : "";
+  const row = id
+    ? M.entries(data, month).find(r => r.id === id)
+    : null;
 
-      const defaultDay = month === M.today().slice(0, 7)
-        ? Number(M.today().slice(8)) + 1
-        : 27;
+  $("name").value = row ? row.name : "";
+  $("name").disabled = !!id;
 
-      $("date").value = row && row.date
-        ? row.date
-        : M.due(month, Math.max(1, defaultDay));
+  $("amount").value =
+    row && row.amount !== null ? row.amount : "";
 
-      $("date").min = month + "-01";
-      $("date").max = M.due(month, 31);
+  if (id) {
+    // 編集時は、これまでどおり選択中の月の予定を変更
+    $("date").min = month + "-01";
+    $("date").max = M.due(month, 31);
+    $("date").value = row && row.date
+      ? row.date
+      : M.due(month, 27);
+  } else {
+    // 新規登録時は月の制限をなくす
+    $("date").removeAttribute("min");
+    $("date").removeAttribute("max");
 
-      $("dialog").showModal();
-    }
+    // 表示中の月に関係なく、今日を初期値にする
+    $("date").value = M.today();
+  }
+
+  $("dialog").showModal();
+}
 
     $("form").onsubmit = event => {
-      event.preventDefault();
+  event.preventDefault();
 
-      const amount = Number($("amount").value);
-      const date = $("date").value;
+  const amount = Number($("amount").value);
+  const date = $("date").value;
 
-      if (
-        !Number.isSafeInteger(amount) ||
-        amount < 0 ||
-        amount > 999999999 ||
-        date.slice(0, 7) !== month
-      ) {
-        $("error").textContent =
-          "金額と選択中の月の日付を確認してください。";
-        return;
+  if (
+    !Number.isSafeInteger(amount) ||
+    amount < 0 ||
+    amount > 999999999 ||
+    !date
+  ) {
+    $("error").textContent =
+      "金額と引き落とし日を確認してください。";
+    return;
+  }
+
+  // 入力した日付から登録先の月を決める
+  const selectedMonth = date.slice(0, 7);
+
+  // 既存予定の編集は、元の月の範囲内に限定
+  if (editing && selectedMonth !== month) {
+    $("error").textContent =
+      "編集中の月の日付を選んでください。";
+    return;
+  }
+
+  const next = structuredClone(data);
+
+  if (editing) {
+    const row = next.find(r => r.id === editing);
+
+    if (!row) {
+      $("error").textContent =
+        "予定が見つかりません。画面を開き直してください。";
+      return;
+    }
+
+    row.overrides[month] = { amount, date };
+  } else {
+    const fixedAmount = $("fixedAmount").checked;
+    const fixedDate = $("fixedDate").checked;
+    const name = $("name").value.trim();
+
+    if (!name) {
+      $("error").textContent = "カード名を入力してください。";
+      return;
+    }
+
+    const id = crypto.randomUUID
+      ? crypto.randomUUID()
+      : Array.from(
+          crypto.getRandomValues(new Uint32Array(4)),
+          n => n.toString(16)
+        ).join("-");
+
+    next.push({
+      id,
+      name,
+
+      // 表示中の月ではなく、入力した日付の月に登録
+      start: selectedMonth,
+      end: fixedAmount || fixedDate ? null : selectedMonth,
+
+      amount,
+      day: Number(date.slice(8)),
+      fixedAmount,
+      fixedDate,
+
+      overrides: {
+        [selectedMonth]: { amount, date }
       }
+    });
+  }
 
-      const next = structuredClone(data);
+  if (persist(next)) {
+    // 登録した予定の月を表示
+    month = selectedMonth;
 
-      if (editing) {
-        next.find(row => row.id === editing)
-          .overrides[month] = { amount, date };
-      } else {
-        const fixedAmount = $("fixedAmount").checked;
-        const fixedDate = $("fixedDate").checked;
-        const name = $("name").value.trim();
-
-        if (!name) {
-          $("error").textContent = "カード名を入力してください。";
-          return;
-        }
-
-        const id = crypto.randomUUID
-          ? crypto.randomUUID()
-          : Array.from(
-              crypto.getRandomValues(new Uint32Array(4)),
-              n => n.toString(16)
-            ).join("-");
-
-        next.push({
-          id,
-          name,
-          start: month,
-          end: fixedAmount || fixedDate ? null : month,
-          amount,
-          day: Number(date.slice(8)),
-          fixedAmount,
-          fixedDate,
-          overrides: {
-            [month]: { amount, date }
-          }
-        });
-      }
-
-      if (persist(next)) {
-        $("dialog").close();
-        render();
-        toast("予定を保存しました");
-      }
-    };
+    $("dialog").close();
+    render();
+    toast("予定を保存しました");
+  }
+};
 
     // ---------- 削除 ----------
 
