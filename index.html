@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183f39">
+  <title>引き落としノート</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f5f6f3;
+      color: #233b36;
+      font-family: -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", "Noto Sans", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 1px solid #dce2db;
+      border-radius: 8px;
+      background: white;
+      color: inherit;
+      padding: 10px 15px;
+    }
+
+    button:hover { background: #eef1eb; }
+
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid #9dbd77;
+      outline-offset: 2px;
+    }
+
+    header {
+      height: 84px;
+      background: #fff;
+      border-bottom: 1px solid #e3e8df;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(6%, calc((100% - 1150px) / 2));
+    }
+
+    .brand {
+      text-decoration: none;
+      color: inherit;
+      font-weight: 700;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      background: #214b42;
+      color: #e2edc8;
+      padding: 7px 12px;
+      border-radius: 10px;
+    }
+
+    .private { font-size: 12px; color: #748078; }
+
+    main {
+      max-width: 1150px;
+      margin: 52px auto;
+      padding: 0 24px;
+    }
+
+    .intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      color: #728375;
+    }
+
+    h1 {
+      font-size: 30px;
+      letter-spacing: -.8px;
+      margin: 12px 0;
+    }
+
+    h2 { font-size: 17px; margin: 0; }
+
+    .muted {
+      color: #78847d;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .primary {
+      background: #214d42;
+      color: white;
+      border-color: #214d42;
+      font-weight: 600;
+    }
+
+    .primary:hover { background: #306554; }
+
+    .monthbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 38px 0 20px;
+    }
+
+    .monthnav { display: flex; align-items: center; gap: 14px; }
+
+    .monthnav > button:not(.small) {
+      padding: 3px 12px;
+      font-size: 25px;
+      background: transparent;
+      border: 0;
+    }
+
+    .small { padding: 5px 11px; font-size: 12px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr 1fr;
+      gap: 18px;
+    }
+
+    .hero {
+      background: #214b42;
+      color: white;
+      border-radius: 16px;
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero .eyebrow { color: #c9dacb; letter-spacing: 1px; }
+
+    .big {
+      font-size: 46px;
+      font-weight: 600;
+      margin: 20px 0 7px;
+      letter-spacing: -1px;
+    }
+
+    .herofoot {
+      font-size: 11px;
+      color: #c5d8cb;
+      border-top: 1px solid #537166;
+      padding-top: 18px;
+      margin-top: 25px;
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid #e3e7df;
+      border-radius: 16px;
+      padding: 30px 23px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .stat > span { color: #768078; font-size: 13px; }
+    .stat strong { font-size: 30px; font-weight: 500; }
+    .stat small { color: #889086; font-size: 11px; line-height: 1.8; }
+
+    .panel {
+      margin-top: 30px;
+      background: white;
+      border: 1px solid #e3e7df;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .panelhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 26px;
+      border-bottom: 1px solid #edf0e9;
+    }
+
+    .panelhead h2 span {
+      color: #899389;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #f4f5f1;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .tabs button {
+      border: 0;
+      background: transparent;
+      font-size: 12px;
+      padding: 7px 13px;
+    }
+
+    .tabs button.active {
+      background: #fff;
+      box-shadow: 0 1px 4px #ddd;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 40px 1.4fr 1fr 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 24px 26px;
+      border-bottom: 1px solid #edf0e9;
+    }
+
+    .row:last-child { border: 0; }
+
+    .cardicon {
+      background: #eef2e7;
+      border: 1px solid #dde5d4;
+      border-radius: 10px;
+      padding: 10px;
+      color: #6a815b;
+    }
+
+    .rname { font-weight: 600; font-size: 15px; }
+    .tags { font-size: 10px; color: #7e887d; margin-top: 7px; }
+    .rdate { font-size: 13px; }
+
+    .badge {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      background: #edf3e4;
+      color: #587744;
+    }
+
+    .badge.done { background: #f0f1ed; color: #858d83; }
+    .badge.pending { background: #fff2d9; color: #9a701c; }
+
+    .money {
+      font-size: 20px;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .rowtools { display: flex; gap: 6px; }
+    .rowtools button { font-size: 11px; padding: 7px 9px; }
+
+    .empty {
+      text-align: center;
+      padding: 65px 20px;
+      color: #7e887c;
+      line-height: 2;
+    }
+
+    .empty b {
+      display: block;
+      font-size: 18px;
+      color: #3e5448;
+      margin-bottom: 8px;
+    }
+
+    .note {
+      display: flex;
+      gap: 14px;
+      background: #edf0e7;
+      border-radius: 12px;
+      margin-top: 25px;
+      padding: 23px;
+      color: #5d705b;
+    }
+
+    .note > span { font-size: 25px; }
+    .note b { font-size: 13px; }
+    .note p { font-size: 12px; margin: 8px 0 0; line-height: 1.9; }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      font-size: 11px;
+      color: #899286;
+    }
+
+    footer button {
+      border: 0;
+      background: transparent;
+      font-size: 11px;
+      padding: 8px;
+    }
+
+    .footnote { font-size: 10px; color: #91988d; line-height: 1.9; }
+
+    dialog {
+      border: 0;
+      border-radius: 18px;
+      padding: 28px;
+      width: min(520px, calc(100% - 30px));
+      box-shadow: 0 30px 100px #0003;
+    }
+
+    dialog::backdrop {
+      background: #18332966;
+      backdrop-filter: blur(3px);
+    }
+
+    .dialoghead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .dialoghead button {
+      border: 0;
+      font-size: 24px;
+      padding: 0 7px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    input:not([type=checkbox]) {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #d4ddcf;
+      border-radius: 7px;
+      color: #233b36;
+      background: white;
+      min-width: 0;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: #f4f6f0;
+      padding: 13px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .check small {
+      display: block;
+      color: #81907c;
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    input[type=checkbox] {
+      accent-color: #214d42;
+      width: 18px;
+      height: 18px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    #error { color: #b24b40; font-size: 12px; }
+
+    #toast {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #233b36;
+      color: white;
+      border-radius: 10px;
+      padding: 13px 20px;
+      display: none;
+      z-index: 10;
+    }
+
+    @media (max-width: 760px) {
+      header { padding: 0 20px; height: 70px; }
+      .brand { font-size: 17px; }
+      .private { font-size: 10px; }
+      main { margin: 30px auto; padding: 0 18px; }
+      h1 { font-size: 24px; }
+      .intro { align-items: flex-start; flex-direction: column; }
+      .intro > .primary { align-self: flex-end; }
+      .stats { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .hero { grid-column: 1 / -1; padding: 25px; }
+      .stat { padding: 20px; gap: 15px; }
+      .stat strong { font-size: 25px; }
+      .big { font-size: 43px; }
+      .monthbar { margin-top: 22px; gap: 10px; flex-wrap: wrap; }
+      .panelhead { padding: 20px 15px; gap: 15px; flex-wrap: wrap; }
+      .row {
+        padding: 20px 15px;
+        grid-template-columns: 32px 1fr auto;
+        gap: 10px;
+      }
+      .cardicon { padding: 8px; }
+      .rdate { grid-column: 2; grid-row: 2; }
+      .money { grid-column: 3; grid-row: 1; }
+      .rowtools { grid-column: 3; grid-row: 2; }
+      .note { padding: 18px; }
+      footer { align-items: flex-start; gap: 8px; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="brand" href="./">
+      <span class="logo">▤</span> 引き落としノート
+    </a>
+    <span class="private">ブラウザに自動保存</span>
+  </header>
+
+  <main>
+    <div class="intro">
+      <div>
+        <p class="eyebrow">PAYMENT PLANNER</p>
+        <h1>支払いの予定を、ひと目で。</h1>
+        <p class="muted">
+          カードごとの引き落としをまとめて、今月の準備をシンプルに。
+        </p>
+      </div>
+      <button class="primary" id="add">＋ 予定を追加</button>
+    </div>
+
+    <div class="monthbar">
+      <div class="monthnav">
+        <button id="prev" aria-label="前の月">‹</button>
+        <h2 id="monthTitle"></h2>
+        <button id="next" aria-label="次の月">›</button>
+        <button id="current" class="small">今月</button>
+      </div>
+      <span id="today" class="muted"></span>
+    </div>
+
+    <section class="stats">
+      <div class="hero">
+        <div class="eyebrow">これから引き落とされる金額</div>
+        <div id="remaining" class="big"></div>
+        <div id="count"></div>
+        <div class="herofoot">
+          引き落とし日を迎えると、自動で残額から差し引かれます。
+        </div>
+      </div>
+
+      <div class="stat">
+        <span>日付到来分</span>
+        <strong id="done"></strong>
+        <small>当日を含む・実際の決済確認ではありません</small>
+      </div>
+
+      <div class="stat">
+        <span>入力待ち</span>
+        <strong id="pending"></strong>
+        <small>金額または日付の入力が必要な予定</small>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panelhead">
+        <h2>引き落とし一覧 <span id="rowCount"></span></h2>
+        <div class="tabs">
+          <button data-tab="all" class="active">すべて</button>
+          <button data-tab="upcoming">予定</button>
+          <button data-tab="done">日付到来</button>
+        </div>
+      </div>
+      <div id="rows"></div>
+    </section>
+
+    <div class="note">
+      <span>◷</span>
+      <div>
+        <b>毎月の入力を、少しラクに。</b>
+        <p>
+          金額・日付はそれぞれ固定できます。
+          固定した項目は翌月以降に引き継ぎ、
+          固定しない項目は「入力待ち」になります。
+          どちらも固定しない場合は、その月だけの予定です。
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <span>日本時間 0:00 基準 · 銀行口座との連携はありません</span>
+      <div>
+        <button id="export">バックアップ</button>
+        <button id="import">復元</button>
+        <input id="file" type="file" accept="application/json" hidden>
+      </div>
+    </footer>
+
+    <p class="footnote">
+      データはこの端末のブラウザ内に保存されます。
+      別の端末とは同期されません。
+      土日祝日の自動調整は行わないため、
+      実際の引き落とし日を入力してください。
+    </p>
+  </main>
+
+  <!-- 追加・編集画面 -->
+  <dialog id="dialog">
+    <form id="form">
+      <div class="dialoghead">
+        <h2 id="formTitle">予定を追加</h2>
+        <button type="button" id="close" aria-label="閉じる">×</button>
+      </div>
+
+      <label>
+        カード名・支払い名
+        <input id="name" required maxlength="40"
+               placeholder="例：楽天カード">
+      </label>
+
+      <div class="fields">
+        <label>
+          引き落とし額（円）
+          <input id="amount" type="number"
+                 min="0" max="999999999" step="1"
+                 required placeholder="30,000">
+        </label>
+        <label>
+          引き落とし日
+          <input id="date" type="date" required>
+        </label>
+      </div>
+
+      <div id="repeat">
+        <label class="check">
+          <input id="fixedAmount" type="checkbox">
+          <span>
+            金額を毎月固定する
+            <small>翌月以降も同じ金額を使います</small>
+          </span>
+        </label>
+
+        <label class="check">
+          <input id="fixedDate" type="checkbox">
+          <span>
+            引き落とし日を毎月固定する
+            <small>
+              同じ日を使います。存在しない日は月末になります
+            </small>
+          </span>
+        </label>
+      </div>
+
+      <p id="editNote" class="muted" hidden>
+        この月の予定だけを変更します。
+        固定設定は登録時の設定を引き継ぎます。
+      </p>
+
+      <p id="error" role="alert"></p>
+
+      <div class="actions">
+        <button type="button" id="cancel">キャンセル</button>
+        <button class="primary" type="submit">保存する</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ブラウザ標準のconfirmを使わない確認画面 -->
+  <dialog id="confirmDialog"
+          aria-labelledby="confirmTitle"
+          aria-describedby="confirmMessage">
+    <h2 id="confirmTitle">確認</h2>
+    <p id="confirmMessage" class="muted"></p>
+    <div class="actions">
+      <button type="button" id="confirmCancel" autofocus>
+        キャンセル
+      </button>
+      <button type="button" id="confirmAccept" class="primary">
+        削除する
+      </button>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status"></div>
+
+  <script>
+    // ---------- 日付・集計処理 ----------
+
+    const CardModel = (() => {
+      // 日本時間の日付をYYYY-MM-DD形式で取得
+      const today = () => new Intl.DateTimeFormat("sv-SE", {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date());
+
+      // 指定日が存在しない月では月末に調整
+      function due(month, day) {
+        const lastDay = new Date(
+          Number(month.slice(0, 4)),
+          Number(month.slice(5)),
+          0
+        ).getDate();
+
+        return month + "-" +
+          String(Math.min(day, lastDay)).padStart(2, "0");
+      }
+
+      // 選択した月の予定を生成
+      function entries(data, month) {
+        return data
+          .filter(r =>
+            r.start <= month &&
+            (!r.end || r.end >= month)
+          )
+          .map(r => {
+            const override = r.overrides[month] || {};
+
+            return {
+              ...r,
+              amount: Object.hasOwn(override, "amount")
+                ? override.amount
+                : r.fixedAmount ? r.amount : null,
+              date: Object.hasOwn(override, "date")
+                ? override.date
+                : r.fixedDate ? due(month, r.day) : null
+            };
+          });
+      }
+
+      // 引き落とし日が今日以前なら残額から除外
+      function totals(rows, now) {
+        return rows.reduce((sum, row) => {
+          if (row.amount === null || !row.date) {
+            sum.pending++;
+          } else if (row.date <= now) {
+            sum.done += row.amount;
+          } else {
+            sum.remaining += row.amount;
+            sum.count++;
+          }
+          return sum;
+        }, {
+          remaining: 0,
+          done: 0,
+          pending: 0,
+          count: 0
+        });
+      }
+
+      return { today, due, entries, totals };
+    })();
+
+    // ---------- アプリの状態 ----------
+
+    const $ = id => document.getElementById(id);
+    const M = CardModel;
+    const KEY = "withdrawal-note-v1";
+    const yen = n => "¥" + n.toLocaleString("ja-JP");
+
+    let data = [];
+    let month = M.today().slice(0, 7);
+    let tab = "all";
+    let editing = null;
+
+    try {
+      data = JSON.parse(localStorage.getItem(KEY) || "[]");
+    } catch {
+      alert(
+        "保存データを読み込めませんでした。" +
+        "バックアップがあれば復元してください。"
+      );
+    }
+
+    // HTMLに表示する文字列をエスケープ
+    const esc = value => String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
+
+    function toast(message) {
+      $("toast").textContent = message;
+      $("toast").style.display = "block";
+
+      setTimeout(() => {
+        $("toast").style.display = "none";
+      }, 3000);
+    }
+
+    // アプリ内の確認ダイアログ
+    function askConfirmation(title, message, action) {
+      const dialog = $("confirmDialog");
+
+      if (dialog.open) return Promise.resolve(false);
+
+      $("confirmTitle").textContent = title;
+      $("confirmMessage").textContent = message;
+      $("confirmAccept").textContent = action;
+
+      return new Promise(resolve => {
+        let accepted = false;
+
+        $("confirmCancel").onclick = () => dialog.close();
+
+        $("confirmAccept").onclick = () => {
+          accepted = true;
+          dialog.close();
+        };
+
+        dialog.addEventListener(
+          "close",
+          () => resolve(accepted),
+          { once: true }
+        );
+
+        dialog.showModal();
+      });
+    }
+
+    // 保存が成功した場合だけアプリの状態を更新
+    function persist(next) {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(next));
+        data = next;
+        return true;
+      } catch {
+        alert(
+          "保存できません。" +
+          "ブラウザの空き容量や保存設定を確認してください。"
+        );
+        return false;
+      }
+    }
+
+    function move(offset) {
+      const date = new Date(
+        Number(month.slice(0, 4)),
+        Number(month.slice(5)) - 1 + offset,
+        1
+      );
+
+      month = date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, "0");
+
+      render();
+    }
+
+    // ---------- 画面表示 ----------
+
+    function render() {
+      const now = M.today();
+      const rows = M.entries(data, month);
+      const summary = M.totals(rows, now);
+
+      $("monthTitle").textContent =
+        Number(month.slice(0, 4)) + "年 " +
+        Number(month.slice(5)) + "月";
+
+      $("today").textContent = "今日：" + now.replaceAll("-", " / ");
+      $("remaining").textContent = yen(summary.remaining);
+      $("done").textContent = yen(summary.done);
+      $("pending").textContent = summary.pending + " 件";
+      $("count").textContent = summary.count + "件の引き落とし予定";
+      $("rowCount").textContent = rows.length + "件";
+
+      document.querySelectorAll("[data-tab]").forEach(button => {
+        button.classList.toggle("active", button.dataset.tab === tab);
+      });
+
+      const filtered = rows
+        .filter(row => {
+          if (tab === "all") return true;
+
+          if (tab === "done") {
+            return row.date &&
+              row.amount !== null &&
+              row.date <= now;
+          }
+
+          return !row.date ||
+            row.amount === null ||
+            row.date > now;
+        })
+        .sort((a, b) =>
+          (a.date || "9999").localeCompare(b.date || "9999")
+        );
+
+      $("rows").innerHTML = filtered.map(row => {
+        const pending = row.amount === null || !row.date;
+        const done = !pending && row.date <= now;
+
+        const tags = [
+          row.fixedAmount ? "金額固定" : "",
+          row.fixedDate ? "日付固定" : ""
+        ].filter(Boolean).join(" · ") || "今回のみ";
+
+        const stateClass = pending ? "pending" : done ? "done" : "";
+        const stateText = pending
+          ? "入力待ち"
+          : done ? "日付到来" : "引き落とし予定";
+
+        return `
+          <div class="row">
+            <div class="cardicon">▤</div>
+            <div>
+              <div class="rname">${esc(row.name)}</div>
+              <div class="tags">${tags}</div>
+            </div>
+            <div class="rdate">
+              ${row.date
+                ? esc(row.date.replaceAll("-", " / "))
+                : "日付未入力"}
+              <br>
+              <span class="badge ${stateClass}">
+                ${stateText}
+              </span>
+            </div>
+            <div class="money">
+              ${row.amount === null ? "—" : yen(row.amount)}
+            </div>
+            <div class="rowtools">
+              <button data-edit="${row.id}">編集</button>
+              <button
+                data-delete="${row.id}"
+                aria-label="${esc(row.name)}を削除"
+              >削除</button>
+            </div>
+          </div>
+        `;
+      }).join("") || `
+        <div class="empty">
+          <b>まだ予定がありません</b>
+          「予定を追加」からカード名・金額・日付を登録しましょう。
+        </div>
+      `;
+    }
+
+    // ---------- 追加・編集 ----------
+
+    function openEditor(id) {
+      editing = id || null;
+
+      $("form").reset();
+      $("error").textContent = "";
+      $("repeat").hidden = !!id;
+      $("editNote").hidden = !id;
+      $("formTitle").textContent =
+        id ? "この月の予定を編集" : "予定を追加";
+
+      const row = id
+        ? M.entries(data, month).find(r => r.id === id)
+        : null;
+
+      $("name").value = row ? row.name : "";
+      $("name").disabled = !!id;
+      $("amount").value =
+        row && row.amount !== null ? row.amount : "";
+
+      const defaultDay = month === M.today().slice(0, 7)
+        ? Number(M.today().slice(8)) + 1
+        : 27;
+
+      $("date").value = row && row.date
+        ? row.date
+        : M.due(month, Math.max(1, defaultDay));
+
+      $("date").min = month + "-01";
+      $("date").max = M.due(month, 31);
+
+      $("dialog").showModal();
+    }
+
+    $("form").onsubmit = event => {
+      event.preventDefault();
+
+      const amount = Number($("amount").value);
+      const date = $("date").value;
+
+      if (
+        !Number.isSafeInteger(amount) ||
+        amount < 0 ||
+        amount > 999999999 ||
+        date.slice(0, 7) !== month
+      ) {
+        $("error").textContent =
+          "金額と選択中の月の日付を確認してください。";
+        return;
+      }
+
+      const next = structuredClone(data);
+
+      if (editing) {
+        next.find(row => row.id === editing)
+          .overrides[month] = { amount, date };
+      } else {
+        const fixedAmount = $("fixedAmount").checked;
+        const fixedDate = $("fixedDate").checked;
+        const name = $("name").value.trim();
+
+        if (!name) {
+          $("error").textContent = "カード名を入力してください。";
+          return;
+        }
+
+        const id = crypto.randomUUID
+          ? crypto.randomUUID()
+          : Array.from(
+              crypto.getRandomValues(new Uint32Array(4)),
+              n => n.toString(16)
+            ).join("-");
+
+        next.push({
+          id,
+          name,
+          start: month,
+          end: fixedAmount || fixedDate ? null : month,
+          amount,
+          day: Number(date.slice(8)),
+          fixedAmount,
+          fixedDate,
+          overrides: {
+            [month]: { amount, date }
+          }
+        });
+      }
+
+      if (persist(next)) {
+        $("dialog").close();
+        render();
+        toast("予定を保存しました");
+      }
+    };
+
+    // ---------- 削除 ----------
+
+    $("rows").onclick = async event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+
+      if (button.dataset.edit) {
+        openEditor(button.dataset.edit);
+        return;
+      }
+
+      if (!button.dataset.delete) return;
+
+      const id = button.dataset.delete;
+      const deleteMonth = month;
+      const row = data.find(item => item.id === id);
+      if (!row) return;
+
+      const message = row.fixedAmount || row.fixedDate
+        ? `「${row.name}」を${deleteMonth.replace("-", "年")}月以降の` +
+          "一覧から削除します。過去の月は残ります。"
+        : `「${row.name}」を削除しますか？`;
+
+      const accepted = await askConfirmation(
+        "予定を削除",
+        message,
+        "削除する"
+      );
+
+      if (!accepted) return;
+
+      const next = structuredClone(data);
+      const index = next.findIndex(item => item.id === id);
+
+      if (index < 0) {
+        toast("この予定はすでに削除されています");
+        return;
+      }
+
+      const item = next[index];
+
+      if (item.start >= deleteMonth) {
+        next.splice(index, 1);
+      } else {
+        // 過去の履歴を残し、選択月以降の繰り返しを停止
+        const previousMonth = new Date(
+          Number(deleteMonth.slice(0, 4)),
+          Number(deleteMonth.slice(5)) - 2,
+          1
+        );
+
+        const end = previousMonth.getFullYear() + "-" +
+          String(previousMonth.getMonth() + 1).padStart(2, "0");
+
+        if (!item.end || item.end > end) {
+          item.end = end;
+        }
+      }
+
+      if (persist(next)) {
+        render();
+        toast("予定を削除しました");
+      }
+    };
+
+    // ---------- ボタン操作 ----------
+
+    $("add").onclick = () => openEditor();
+
+    $("close").onclick = $("cancel").onclick = () => {
+      $("dialog").close();
+    };
+
+    $("prev").onclick = () => move(-1);
+    $("next").onclick = () => move(1);
+
+    $("current").onclick = () => {
+      month = M.today().slice(0, 7);
+      render();
+    };
+
+    document.querySelectorAll("[data-tab]").forEach(button => {
+      button.onclick = () => {
+        tab = button.dataset.tab;
+        render();
+      };
+    });
+
+    // ---------- バックアップ ----------
+
+    $("export").onclick = () => {
+      const content = JSON.stringify({ version: 1, data }, null, 2);
+      const blob = new Blob([content], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "withdrawal-note-" + M.today() + ".json";
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
+    // ---------- 復元 ----------
+
+    $("import").onclick = () => $("file").click();
+
+    $("file").onchange = async event => {
+      try {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 2000000) throw new Error();
+
+        const backup = JSON.parse(await file.text());
+
+        const validMonth = value =>
+          typeof value === "string" &&
+          /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+
+        const validDate = value =>
+          typeof value === "string" &&
+          /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+          !isNaN(Date.parse(value));
+
+        const validAmount = value =>
+          Number.isSafeInteger(value) &&
+          value >= 0 &&
+          value <= 999999999;
+
+        const validRecord = row =>
+          typeof row.id === "string" &&
+          /^[a-zA-Z0-9-]+$/.test(row.id) &&
+          typeof row.name === "string" &&
+          row.name.length <= 40 &&
+          validMonth(row.start) &&
+          (!row.end || validMonth(row.end)) &&
+          validAmount(row.amount) &&
+          Number.isInteger(row.day) &&
+          row.day >= 1 &&
+          row.day <= 31 &&
+          typeof row.fixedAmount === "boolean" &&
+          typeof row.fixedDate === "boolean" &&
+          row.overrides &&
+          typeof row.overrides === "object" &&
+          Object.entries(row.overrides).every(([key, value]) =>
+            validMonth(key) &&
+            value &&
+            validAmount(value.amount) &&
+            validDate(value.date) &&
+            value.date.startsWith(key)
+          );
+
+        if (
+          backup.version !== 1 ||
+          !Array.isArray(backup.data) ||
+          !backup.data.every(validRecord)
+        ) {
+          throw new Error();
+        }
+
+        const accepted = await askConfirmation(
+          "バックアップを復元",
+          "現在のデータをバックアップの内容で置き換えますか？",
+          "復元する"
+        );
+
+        if (accepted && persist(backup.data)) {
+          render();
+          toast("復元しました");
+        }
+      } catch {
+        alert(
+          "このアプリで作成した有効なバックアップを選んでください。"
+        );
+      } finally {
+        event.target.value = "";
+      }
+    };
+
+    // ---------- 自動更新 ----------
+
+    // 開いている間は15秒ごとに日付と集計を更新
+    setInterval(render, 15000);
+
+    // 別の画面から戻ったときに更新
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) render();
+    });
+
+    // 同じ公開先を別タブで変更した場合に反映
+    window.addEventListener("storage", event => {
+      if (event.key === KEY) {
+        try {
+          data = JSON.parse(event.newValue || "[]");
+          render();
+        } catch {
+          // 不正なデータでは画面を更新しない
+        }
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
